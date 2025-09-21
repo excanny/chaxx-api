@@ -2,27 +2,31 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\ServiceController;
+use App\Http\Controllers\Api\BookingController;
+use App\Http\Controllers\Api\PaymentController;
 
 // Public routes
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
-// Public posts routes (read-only)
-// Route::get('/posts', [PostController::class, 'index']);
-// Route::get('/posts/{id}', [PostController::class, 'show']);
+// Booking without authentication
+Route::post('/bookings', [BookingController::class, 'store']);
+
+// Available slots endpoint (public)
+Route::get('/available-slots', [BookingController::class, 'availableSlots']);
+
+// Payment routes
+Route::get('/checkout/{booking}', [BookingController::class, 'checkout'])->name('checkout');
+Route::post('/payment/callback', [BookingController::class, 'paymentCallback'])->name('payment.callback');
+
+Route::post('/create-payment-intent', [PaymentController::class, 'createPaymentIntent']);
+Route::post('/stripe-webhook', [PaymentController::class, 'handleWebhook']);
 
 // Protected routes
 // Route::middleware('auth:sanctum')->group(function () {
-//     // Auth routes
-//     Route::get('/profile', [AuthController::class, 'profile']);
-//     Route::post('/logout', [AuthController::class, 'logout']);
-//     Route::post('/logout-all', [AuthController::class, 'logoutAll']);
-    
-//     // Protected post routes
-//     Route::post('/posts', [PostController::class, 'store']);
-//     Route::put('/posts/{id}', [PostController::class, 'update']);
-//     Route::delete('/posts/{id}', [PostController::class, 'destroy']);
-//     Route::get('/my-posts', [PostController::class, 'myPosts']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::apiResource('services', ServiceController::class)->except(['index', 'show']); 
+    Route::apiResource('bookings', BookingController::class)->except(['store']);
 // });

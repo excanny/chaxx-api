@@ -11,15 +11,27 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
+       Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->enum('type', ['admin', 'user'])->default('user'); // <- Add this
             $table->rememberToken();
             $table->timestamps();
         });
+
+        // Insert admin user
+        DB::table('users')->insert([
+            'name' => 'Admin User',
+            'email' => 'admin@chaxxbarbers.com',
+            'password' => '$2y$10$CKkaRPW4jInkMgKuJlY6FuY5TMiKSwmPmaeIh0snisxDx6Tc7M9Hq',
+            'type' => 'admin',
+            'email_verified_at' => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
             $table->string('email')->primary();
@@ -47,3 +59,6 @@ return new class extends Migration
         Schema::dropIfExists('sessions');
     }
 };
+
+
+
